@@ -1,14 +1,13 @@
 {
   "name": "pool",
   "dependencies": {
-    "ember": "lts-2-8",
-    "ember-cli-shims": "0.1.3"
+    "ember": "v2.4.5",
+    "ember-cli-shims": "0.1.1",
+    "ember-cli-test-loader": "0.2.2",
+    "ember-qunit-notifications": "0.1.0"
   },
   "devDependencies": {
-    "bootstrap": "~3.3.7",
-    "font-awesome": "fontawesome#~4.7.0"
-  },
-  "resolutions": {
-    "ember": "lts-2-8"
+    "bootstrap": "~3.3.6",
+    "font-awesome": "fontawesome#~4.5.0"
   }
 }
