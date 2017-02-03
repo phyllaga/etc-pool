@@ -463,11 +463,11 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	if u.config.Donate {
 		var donation = new(big.Rat)
 		poolProfit, donation = chargeFee(poolProfit, donationFee)
-		if cfg.DonateFeeAddress != nil {
-			donationAccount = cfg.DonateFeeAddress
+		if u.config.DonateFeeAddress != nil {
+			donationAccount =  u.config.DonateFeeAddress
 		}
-		if len(cfg.DonateFeeAddress) != 0 && !util.IsValidHexAddress(cfg.DonateFeeAddress) {
-			log.Fatalln("Invalid DonateFeeAddress", cfg.DonateFeeAddress)
+		if len( u.config.DonateFeeAddress) != 0 && !util.IsValidHexAddress( u.config.DonateFeeAddress) {
+			log.Fatalln("Invalid DonateFeeAddress",  u.config.DonateFeeAddress)
 		} else {
 
 			login := strings.ToLower(donationAccount)
