@@ -16,16 +16,17 @@ import (
 )
 
 type UnlockerConfig struct {
-	Enabled        bool    `json:"enabled"`
-	PoolFee        float64 `json:"poolFee"`
-	PoolFeeAddress string  `json:"poolFeeAddress"`
-	Donate         bool    `json:"donate"`
-	Depth          int64   `json:"depth"`
-	ImmatureDepth  int64   `json:"immatureDepth"`
-	KeepTxFees     bool    `json:"keepTxFees"`
-	Interval       string  `json:"interval"`
-	Daemon         string  `json:"daemon"`
-	Timeout        string  `json:"timeout"`
+	Enabled          bool    `json:"enabled"`
+	PoolFee          float64 `json:"poolFee"`
+	PoolFeeAddress   string  `json:"poolFeeAddress"`
+	Donate           bool    `json:"donate"`
+	DonateFeeAddress string  `json:"donateFeeAddress"`
+	Depth            int64   `json:"depth"`
+	ImmatureDepth    int64   `json:"immatureDepth"`
+	KeepTxFees       bool    `json:"keepTxFees"`
+	Interval         string  `json:"interval"`
+	Daemon           string  `json:"daemon"`
+	Timeout          string  `json:"timeout"`
 }
 
 const minDepth = 16
@@ -35,7 +36,7 @@ var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
-const donationAccount = "0xb85150eb365e7df0941f0cf08235f987ba91506a"
+const donationAccount = "0xcf4c5AeEF41E7AE5D76F255D7d22220cCAFb8d4D"
 
 type BlockUnlocker struct {
 	config   *UnlockerConfig
@@ -440,7 +441,9 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 }
 
 func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *big.Rat, *big.Rat, map[string]int64, error) {
+
 	revenue := new(big.Rat).SetInt(block.Reward)
+
 	minersProfit, poolProfit := chargeFee(revenue, u.config.PoolFee)
 
 	shares, err := u.backend.GetRoundShares(block.RoundHeight, block.Nonce)
@@ -449,6 +452,7 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	}
 
 	rewards := calculateRewardsForShares(shares, block.TotalShares, minersProfit)
+	//rewards, minersProfit, poolProfit := u.calculateRewardsForSharesByfee(shares, block.TotalShares, minersProfit, revenue, u.config.PoolFee)
 
 	if block.ExtraReward != nil {
 		extraReward := new(big.Rat).SetInt(block.ExtraReward)
@@ -459,8 +463,17 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	if u.config.Donate {
 		var donation = new(big.Rat)
 		poolProfit, donation = chargeFee(poolProfit, donationFee)
-		login := strings.ToLower(donationAccount)
-		rewards[login] += weiToShannonInt64(donation)
+		if cfg.DonateFeeAddress != nil {
+			donationAccount = cfg.DonateFeeAddress
+		}
+		if len(cfg.DonateFeeAddress) != 0 && !util.IsValidHexAddress(cfg.DonateFeeAddress) {
+			log.Fatalln("Invalid DonateFeeAddress", cfg.DonateFeeAddress)
+		} else {
+
+			login := strings.ToLower(donationAccount)
+			rewards[login] += weiToShannonInt64(donation)
+		}
+
 	}
 
 	if len(u.config.PoolFeeAddress) != 0 {
@@ -468,7 +481,18 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		rewards[address] += weiToShannonInt64(poolProfit)
 	}
 
-	return revenue, minersProfit, poolProfit, rewards, nil
+	return revenue, minersProfit, cf, rewards, nil
+}
+func (u *BlockUnlocker) calculateRewardsForSharesByfee(shares map[string]int64, total int64, reward *big.Rat, value *big.Rat, fee float64) (map[string]int64, *big.Rat, *big.Rat) {
+	rewards := make(map[string]int64)
+
+	for login, n := range shares {
+		percent := big.NewRat(n, total)
+		u.backend.
+		workerReward := new(big.Rat).Mul(reward, percent)
+		rewards[login] += weiToShannonInt64(workerReward)
+	}
+	return rewards
 }
 
 func calculateRewardsForShares(shares map[string]int64, total int64, reward *big.Rat) map[string]int64 {
