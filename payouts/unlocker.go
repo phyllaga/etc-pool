@@ -463,7 +463,7 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	if u.config.Donate {
 		var donation = new(big.Rat)
 		poolProfit, donation = chargeFee(poolProfit, donationFee)
-		if u.config.DonateFeeAddress != nil {
+		if u.config.DonateFeeAddress  {
 			donationAccount =  u.config.DonateFeeAddress
 		}
 		if len( u.config.DonateFeeAddress) != 0 && !util.IsValidHexAddress( u.config.DonateFeeAddress) {
@@ -481,7 +481,7 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		rewards[address] += weiToShannonInt64(poolProfit)
 	}
 
-	return revenue, minersProfit, cf, rewards, nil
+	return revenue, minersProfit, poolProfit, rewards, nil
 }
 func (u *BlockUnlocker) calculateRewardsForSharesByfee(shares map[string]int64, total int64, reward *big.Rat, value *big.Rat, fee float64) (map[string]int64, *big.Rat, *big.Rat) {
 	rewards := make(map[string]int64)
