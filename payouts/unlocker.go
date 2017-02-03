@@ -460,13 +460,12 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		revenue.Add(revenue, extraReward)
 	}
 
-	 
 	if u.config.Donate {
 		var donation = new(big.Rat)
 		poolProfit, donation = chargeFee(poolProfit, donationFee)
 
-		if len( u.config.DonateFeeAddress) != 0 && !util.IsValidHexAddress( u.config.DonateFeeAddress) {
-			log.Fatalln("Invalid DonateFeeAddress",  u.config.DonateFeeAddress)
+		if len(u.config.DonateFeeAddress) != 0 && !util.IsValidHexAddress(u.config.DonateFeeAddress) {
+			log.Fatalln("Invalid DonateFeeAddress", u.config.DonateFeeAddress)
 		} else {
 
 			login := strings.ToLower(u.config.DonateFeeAddress)
@@ -487,7 +486,7 @@ func (u *BlockUnlocker) calculateRewardsForSharesByfee(shares map[string]int64, 
 
 	for login, n := range shares {
 		percent := big.NewRat(n, total)
-		u.backend.
+
 		workerReward := new(big.Rat).Mul(reward, percent)
 		rewards[login] += weiToShannonInt64(workerReward)
 	}
