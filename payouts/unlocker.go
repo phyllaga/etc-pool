@@ -481,17 +481,18 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 
 	return revenue, minersProfit, poolProfit, rewards, nil
 }
-func (u *BlockUnlocker) calculateRewardsForSharesByfee(shares map[string]int64, total int64, reward *big.Rat, value *big.Rat, fee float64) (map[string]int64, *big.Rat, *big.Rat) {
-	rewards := make(map[string]int64)
 
-	for login, n := range shares {
-		percent := big.NewRat(n, total)
+//func (u *BlockUnlocker) calculateRewardsForSharesByfee(shares map[string]int64, total int64, reward *big.Rat, value *big.Rat, fee float64) (map[string]int64, *big.Rat, *big.Rat) {
+//	rewards := make(map[string]int64)
 
-		workerReward := new(big.Rat).Mul(reward, percent)
-		rewards[login] += weiToShannonInt64(workerReward)
-	}
-	return rewards, 0, 0
-}
+//	for login, n := range shares {
+//		percent := big.NewRat(n, total)
+
+//		workerReward := new(big.Rat).Mul(reward, percent)
+//		rewards[login] += weiToShannonInt64(workerReward)
+//	}
+//	return rewards, 0, 0
+//}
 
 func calculateRewardsForShares(shares map[string]int64, total int64, reward *big.Rat) map[string]int64 {
 	rewards := make(map[string]int64)
