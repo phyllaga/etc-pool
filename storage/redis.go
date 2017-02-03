@@ -342,11 +342,11 @@ func (r *RedisClient) GetFee(login string) (int64, string, error) {
 	cmd := r.client.HGet(r.formatKey("miners", login), "fee")
 	pairent := r.client.HGet(r.formatKey("miners", login), "pairent")
 	if cmd.Err() == redis.Nil {
-		return 0, nil, nil
+		return 0, '', nil
 	} else if cmd.Err() != nil {
 		return 0, cmd.Err()
 	}
-	return cmd.Int64(), nil
+	return cmd.Int64(),pairent ,nil
 }
 
 func (r *RedisClient) GetBalance(login string) (int64, error) {
